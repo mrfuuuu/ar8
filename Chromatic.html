@@ -1,0 +1,512 @@
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>AR8 Studio — Analytics</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <!-- Background -->
+    <div class="bg-glow glow-one"></div>
+    <div class="bg-glow glow-two"></div>
+
+
+    <!-- =========================
+         SIDEBAR
+    ========================== -->
+
+    <aside class="sidebar">
+
+        <div class="brand">
+
+            <div class="logo-wrap">
+                <!-- নিজের logo এখানে বসাবে -->
+                <img
+                    src="YOUR_LOGO_URL"
+                    alt="AR8 Logo"
+                >
+            </div>
+
+            <div>
+                <h2>AR<span>8</span></h2>
+                <p>STUDIO</p>
+            </div>
+
+        </div>
+
+
+        <nav class="navigation">
+
+            <button class="nav-item active">
+                <span>⌂</span>
+                Dashboard
+            </button>
+
+            <button class="nav-item">
+                <span>◉</span>
+                Analytics
+            </button>
+
+            <button class="nav-item">
+                <span>▶</span>
+                Videos
+            </button>
+
+            <button class="nav-item">
+                <span>♙</span>
+                Audience
+            </button>
+
+            <button class="nav-item">
+                <span>⚙</span>
+                Settings
+            </button>
+
+        </nav>
+
+
+        <div class="sidebar-bottom">
+
+            <div class="connection">
+
+                <span class="status-dot"></span>
+
+                <div>
+                    <strong>System</strong>
+                    <small>Ready to connect</small>
+                </div>
+
+            </div>
+
+        </div>
+
+    </aside>
+
+
+
+    <!-- =========================
+         MAIN
+    ========================== -->
+
+    <main class="main">
+
+
+        <!-- TOPBAR -->
+
+        <header class="topbar">
+
+            <div>
+
+                <div class="eyebrow">
+                    AR8 CREATOR DASHBOARD
+                </div>
+
+                <h1>
+                    Analytics Overview
+                </h1>
+
+                <p>
+                    Your YouTube channel performance in one place.
+                </p>
+
+            </div>
+
+
+            <div class="top-actions">
+
+                <div class="last-update">
+                    <span class="status-dot"></span>
+                    <span id="updateText">
+                        Not connected
+                    </span>
+                </div>
+
+                <button
+                    id="refreshBtn"
+                    class="icon-button"
+                    title="Refresh"
+                >
+                    ↻
+                </button>
+
+            </div>
+
+        </header>
+
+
+
+        <!-- =========================
+             LOGIN
+        ========================== -->
+
+        <section
+            id="loginCard"
+            class="login-card"
+        >
+
+            <div class="login-icon">
+                ▶
+            </div>
+
+            <div class="login-content">
+
+                <span class="section-label">
+                    YOUTUBE CONNECTION
+                </span>
+
+                <h2>
+                    Connect your AR8 channel
+                </h2>
+
+                <p>
+                    Sign in with Google to securely load your
+                    authorized YouTube analytics.
+                </p>
+
+            </div>
+
+
+            <button
+                id="googleLogin"
+                class="google-button"
+            >
+                <span class="google-icon">G</span>
+                Connect YouTube
+            </button>
+
+        </section>
+
+
+
+        <!-- =========================
+             STATS
+        ========================== -->
+
+        <section class="stats-grid">
+
+
+            <article class="stat-card">
+
+                <div class="stat-heading">
+
+                    <span>
+                        Subscribers
+                    </span>
+
+                    <div class="stat-icon">
+                        ♙
+                    </div>
+
+                </div>
+
+                <strong id="subscribers">
+                    —
+                </strong>
+
+                <small id="subscriberGrowth">
+                    Waiting for data
+                </small>
+
+            </article>
+
+
+
+            <article class="stat-card">
+
+                <div class="stat-heading">
+
+                    <span>
+                        Views
+                    </span>
+
+                    <div class="stat-icon">
+                        ◉
+                    </div>
+
+                </div>
+
+                <strong id="views">
+                    —
+                </strong>
+
+                <small id="viewGrowth">
+                    Waiting for data
+                </small>
+
+            </article>
+
+
+
+            <article class="stat-card">
+
+                <div class="stat-heading">
+
+                    <span>
+                        Watch Time
+                    </span>
+
+                    <div class="stat-icon">
+                        ◷
+                    </div>
+
+                </div>
+
+                <strong id="watchTime">
+                    —
+                </strong>
+
+                <small>
+                    Estimated minutes watched
+                </small>
+
+            </article>
+
+
+
+            <article class="stat-card">
+
+                <div class="stat-heading">
+
+                    <span>
+                        Engagement
+                    </span>
+
+                    <div class="stat-icon">
+                        ♡
+                    </div>
+
+                </div>
+
+                <strong id="engagement">
+                    —
+                </strong>
+
+                <small>
+                    Likes + comments
+                </small>
+
+            </article>
+
+        </section>
+
+
+
+        <!-- =========================
+             ANALYTICS
+        ========================== -->
+
+        <section class="dashboard-grid">
+
+
+            <article class="panel analytics-panel">
+
+                <div class="panel-header">
+
+                    <div>
+
+                        <span class="section-label">
+                            PERFORMANCE
+                        </span>
+
+                        <h2>
+                            Views Overview
+                        </h2>
+
+                    </div>
+
+
+                    <select id="dateRange">
+
+                        <option value="7">
+                            Last 7 days
+                        </option>
+
+                        <option value="28">
+                            Last 28 days
+                        </option>
+
+                        <option value="90">
+                            Last 90 days
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <div
+                    id="viewsChart"
+                    class="chart"
+                >
+
+                    <div class="chart-empty">
+                        Connect YouTube to load analytics.
+                    </div>
+
+                </div>
+
+            </article>
+
+
+
+            <!-- AUDIENCE -->
+
+            <article class="panel audience-panel">
+
+                <div class="panel-header">
+
+                    <div>
+
+                        <span class="section-label">
+                            AUDIENCE
+                        </span>
+
+                        <h2>
+                            Channel Growth
+                        </h2>
+
+                    </div>
+
+                </div>
+
+
+                <div class="audience-main">
+
+                    <strong id="audienceNumber">
+                        —
+                    </strong>
+
+                    <span>
+                        subscribers
+                    </span>
+
+                </div>
+
+
+                <div class="metric-row">
+
+                    <span>
+                        Gained
+                    </span>
+
+                    <strong id="gained">
+                        —
+                    </strong>
+
+                </div>
+
+
+                <div class="metric-row">
+
+                    <span>
+                        Lost
+                    </span>
+
+                    <strong id="lost">
+                        —
+                    </strong>
+
+                </div>
+
+
+                <div class="metric-row">
+
+                    <span>
+                        Net growth
+                    </span>
+
+                    <strong id="netGrowth">
+                        —
+                    </strong>
+
+                </div>
+
+            </article>
+
+        </section>
+
+
+
+        <!-- =========================
+             TOP VIDEOS
+        ========================== -->
+
+        <section class="panel videos-panel">
+
+            <div class="panel-header">
+
+                <div>
+
+                    <span class="section-label">
+                        CONTENT
+                    </span>
+
+                    <h2>
+                        Top Performing Videos
+                    </h2>
+
+                </div>
+
+                <span
+                    id="videoCount"
+                    class="muted"
+                >
+                    —
+                </span>
+
+            </div>
+
+
+            <div
+                id="videosList"
+                class="videos-list"
+            >
+
+                <div class="empty-state">
+
+                    <div>
+                        ▶
+                    </div>
+
+                    <p>
+                        Connect your YouTube channel
+                        to load your videos.
+                    </p>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+
+        <!-- =========================
+             FOOTER
+        ========================== -->
+
+        <footer>
+
+            <span>AR8</span> Studio
+
+            <small>
+                • YouTube Analytics Dashboard
+            </small>
+
+        </footer>
+
+
+    </main>
+
+
+    <script src="app.js"></script>
+
+</body>
+</html>
+```
