@@ -1,17 +1,6 @@
-```javascript
-/*
-    AR8 STUDIO
-    YouTube Analytics Frontend
-
-    IMPORTANT:
-    This file does NOT contain Google secrets.
-
-    The real OAuth/API connection will be added
-    through the secure backend in the next step.
-*/
 
 
-const API_BASE = "YOUR_BACKEND_URL";
+const API_BASE = "https://ar8-backend-production.up.railway.app";
 
 
 const elements = {
@@ -513,4 +502,3 @@ elements.dateRange.addEventListener(
 /* Initial load */
 
 loadDashboard();
-```
