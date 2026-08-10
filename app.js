@@ -1,65 +1,28 @@
 /*
-=========================================================
+========================================================
 AR8 STUDIO
 YouTube Analytics Dashboard
 Frontend: GitHub Pages
 Backend: Railway
-=========================================================
+========================================================
 */
 
 "use strict";
 
-/* =====================================================
+/* ======================================================
    CONFIG
-===================================================== */
+====================================================== */
 
 const API_BASE =
     "https://ar8-backend-production.up.railway.app";
 
-const FRONTEND_ORIGIN =
-    "https://mrfuuuu.github.io";
+const FRONTEND_URL =
+    "https://mrfuuuu.github.io/ar8";
 
 
-/* =====================================================
-   ELEMENTS
-===================================================== */
-
-const elements = {
-    loginCard: document.getElementById("loginCard"),
-    googleLogin: document.getElementById("googleLogin"),
-
-    refreshBtn: document.getElementById("refreshBtn"),
-    updateText: document.getElementById("updateText"),
-
-    subscribers: document.getElementById("subscribers"),
-    views: document.getElementById("views"),
-    watchTime: document.getElementById("watchTime"),
-    engagement: document.getElementById("engagement"),
-
-    audienceNumber: document.getElementById("audienceNumber"),
-
-    gained: document.getElementById("gained"),
-    lost: document.getElementById("lost"),
-    netGrowth: document.getElementById("netGrowth"),
-
-    viewsChart: document.getElementById("viewsChart"),
-
-    videosList: document.getElementById("videosList"),
-    videoCount: document.getElementById("videoCount"),
-
-    dateRange: document.getElementById("dateRange"),
-
-    subscriberGrowth:
-        document.getElementById("subscriberGrowth"),
-
-    viewGrowth:
-        document.getElementById("viewGrowth")
-};
-
-
-/* =====================================================
-   DEBUG
-===================================================== */
+/* ======================================================
+   LOGGING
+====================================================== */
 
 function log(...args) {
     console.log("[AR8]", ...args);
@@ -69,12 +32,65 @@ function errorLog(...args) {
     console.error("[AR8 ERROR]", ...args);
 }
 
+log("=================================");
+log("AR8 STUDIO starting...");
+log("Frontend:", FRONTEND_URL);
+log("Backend:", API_BASE);
+log("=================================");
 
-/* =====================================================
-   FORMAT HELPERS
-===================================================== */
+
+/* ======================================================
+   DOM
+====================================================== */
+
+const $ = (id) => document.getElementById(id);
+
+const elements = {
+
+    loginCard: $("loginCard"),
+
+    googleLogin: $("googleLogin"),
+
+    refreshBtn: $("refreshBtn"),
+
+    updateText: $("updateText"),
+
+    subscribers: $("subscribers"),
+
+    views: $("views"),
+
+    watchTime: $("watchTime"),
+
+    engagement: $("engagement"),
+
+    audienceNumber: $("audienceNumber"),
+
+    gained: $("gained"),
+
+    lost: $("lost"),
+
+    netGrowth: $("netGrowth"),
+
+    viewsChart: $("viewsChart"),
+
+    videosList: $("videosList"),
+
+    videoCount: $("videoCount"),
+
+    dateRange: $("dateRange"),
+
+    subscriberGrowth: $("subscriberGrowth"),
+
+    viewGrowth: $("viewGrowth")
+};
+
+
+/* ======================================================
+   FORMATTERS
+====================================================== */
 
 function formatNumber(value) {
+
     if (
         value === null ||
         value === undefined ||
@@ -85,7 +101,7 @@ function formatNumber(value) {
 
     const number = Number(value);
 
-    if (Number.isNaN(number)) {
+    if (!Number.isFinite(number)) {
         return "—";
     }
 
@@ -94,6 +110,7 @@ function formatNumber(value) {
 
 
 function formatCompact(value) {
+
     if (
         value === null ||
         value === undefined ||
@@ -104,7 +121,7 @@ function formatCompact(value) {
 
     const number = Number(value);
 
-    if (Number.isNaN(number)) {
+    if (!Number.isFinite(number)) {
         return "—";
     }
 
@@ -112,7 +129,8 @@ function formatCompact(value) {
         return (
             (number / 1000000000)
                 .toFixed(1)
-                .replace(".0", "") + "B"
+                .replace(".0", "") +
+            "B"
         );
     }
 
@@ -120,7 +138,8 @@ function formatCompact(value) {
         return (
             (number / 1000000)
                 .toFixed(1)
-                .replace(".0", "") + "M"
+                .replace(".0", "") +
+            "M"
         );
     }
 
@@ -128,7 +147,8 @@ function formatCompact(value) {
         return (
             (number / 1000)
                 .toFixed(1)
-                .replace(".0", "") + "K"
+                .replace(".0", "") +
+            "K"
         );
     }
 
@@ -137,6 +157,7 @@ function formatCompact(value) {
 
 
 function escapeHtml(value) {
+
     return String(value ?? "")
         .replaceAll("&", "&amp;")
         .replaceAll("<", "&lt;")
@@ -146,25 +167,33 @@ function escapeHtml(value) {
 }
 
 
-/* =====================================================
+/* ======================================================
    CONNECTION STATUS
-===================================================== */
+====================================================== */
 
-function setConnectionStatus(connected, text) {
+function setConnectionStatus(
+    connected,
+    text
+) {
 
     if (elements.updateText) {
+
         elements.updateText.textContent =
             text ||
-            (connected
-                ? "Connected"
-                : "Not connected");
+            (
+                connected
+                    ? "Connected"
+                    : "Not connected"
+            );
     }
 
 
     const lastUpdate =
         document.querySelector(".last-update");
 
+
     if (lastUpdate) {
+
         lastUpdate.classList.toggle(
             "connected",
             connected
@@ -172,15 +201,33 @@ function setConnectionStatus(connected, text) {
     }
 
 
-    const sidebarConnection =
+    const statusDot =
+        document.querySelector(
+            ".last-update .status-dot"
+        );
+
+
+    if (statusDot) {
+
+        statusDot.style.background =
+            connected
+                ? "#22c55e"
+                : "#555";
+    }
+
+
+    const sidebar =
         document.querySelector(".connection");
 
-    if (sidebarConnection) {
+
+    if (sidebar) {
 
         const small =
-            sidebarConnection.querySelector("small");
+            sidebar.querySelector("small");
+
 
         if (small) {
+
             small.textContent =
                 connected
                     ? "YouTube connected"
@@ -189,109 +236,33 @@ function setConnectionStatus(connected, text) {
 
 
         const dot =
-            sidebarConnection.querySelector(
+            sidebar.querySelector(
                 ".status-dot"
             );
 
+
         if (dot) {
+
             dot.style.background =
                 connected
-                    ? "#00d26a"
+                    ? "#22c55e"
                     : "#555";
         }
     }
 }
 
 
-/* =====================================================
-   RESET DASHBOARD
-===================================================== */
+/* ======================================================
+   API REQUEST
+====================================================== */
 
-function resetDashboard() {
-
-    const resetElements = [
-        elements.subscribers,
-        elements.views,
-        elements.watchTime,
-        elements.engagement,
-        elements.audienceNumber,
-        elements.gained,
-        elements.lost,
-        elements.netGrowth
-    ];
-
-    resetElements.forEach(element => {
-
-        if (element) {
-            element.textContent = "—";
-        }
-
-    });
-
-
-    if (elements.viewsChart) {
-
-        elements.viewsChart.innerHTML = `
-            <div class="chart-empty">
-                Connect YouTube to load analytics.
-            </div>
-        `;
-    }
-
-
-    if (elements.videosList) {
-
-        elements.videosList.innerHTML = `
-            <div class="empty-state">
-                <div>▶</div>
-                <p>
-                    Connect your YouTube channel
-                    to load your videos.
-                </p>
-            </div>
-        `;
-    }
-
-
-    if (elements.videoCount) {
-        elements.videoCount.textContent =
-            "0 videos";
-    }
-}
-
-
-/* =====================================================
-   GOOGLE LOGIN
-===================================================== */
-
-if (elements.googleLogin) {
-
-    elements.googleLogin.addEventListener(
-        "click",
-        function () {
-
-            log("Starting Google OAuth...");
-
-            elements.googleLogin.disabled = true;
-
-            elements.googleLogin.style.opacity =
-                "0.6";
-
-            window.location.href =
-                API_BASE + "/api/auth/login";
-        }
-    );
-}
-
-
-/* =====================================================
-   API REQUEST HELPER
-===================================================== */
-
-async function apiRequest(endpoint, options = {}) {
+async function apiRequest(
+    endpoint,
+    options = {}
+) {
 
     const url =
-        API_BASE + endpoint;
+        `${API_BASE}${endpoint}`;
 
     log("API request:", url);
 
@@ -300,33 +271,57 @@ async function apiRequest(endpoint, options = {}) {
         await fetch(
             url,
             {
-                method:
-                    options.method || "GET",
+                ...options,
 
-                credentials:
-                    "include",
-
-                cache:
-                    "no-store",
+                credentials: "include",
 
                 headers: {
                     "Accept":
                         "application/json",
 
                     ...(options.headers || {})
-                },
-
-                body:
-                    options.body
+                }
             }
         );
 
 
     log(
         "API response:",
-        endpoint,
-        response.status
+        response.status,
+        endpoint
     );
+
+
+    if (response.status === 401) {
+
+        return {
+            unauthorized: true,
+            response
+        };
+    }
+
+
+    if (!response.ok) {
+
+        let message =
+            `HTTP ${response.status}`;
+
+        try {
+
+            const body =
+                await response.json();
+
+            if (body?.error) {
+                message = body.error;
+            }
+
+        } catch {
+            // Ignore JSON parse error
+        }
+
+
+        throw new Error(message);
+    }
 
 
     const contentType =
@@ -335,54 +330,60 @@ async function apiRequest(endpoint, options = {}) {
         ) || "";
 
 
-    let data = null;
-
-
     if (
-        contentType.includes(
+        !contentType.includes(
             "application/json"
         )
     ) {
 
-        data =
-            await response.json();
-
-    } else {
-
-        const text =
-            await response.text();
-
-        data = text;
+        throw new Error(
+            "Backend did not return JSON."
+        );
     }
 
 
-    if (!response.ok) {
-
-        const message =
-            typeof data === "object"
-                ? (
-                    data.error ||
-                    data.message ||
-                    `HTTP ${response.status}`
-                )
-                : data ||
-                  `HTTP ${response.status}`;
-
-        throw new Error(message);
-    }
-
-
-    return data;
+    return {
+        unauthorized: false,
+        data: await response.json()
+    };
 }
 
 
-/* =====================================================
+/* ======================================================
+   GOOGLE LOGIN
+====================================================== */
+
+if (elements.googleLogin) {
+
+    elements.googleLogin.addEventListener(
+        "click",
+        () => {
+
+            log(
+                "Starting Google OAuth..."
+            );
+
+
+            /*
+             * IMPORTANT
+             * Backend OAuth route
+             */
+
+            window.location.href =
+                `${API_BASE}/api/auth/login`;
+        }
+    );
+}
+
+
+/* ======================================================
    LOAD DASHBOARD
-===================================================== */
+====================================================== */
 
 async function loadDashboard() {
 
     log("Loading dashboard...");
+
 
     setConnectionStatus(
         false,
@@ -392,10 +393,46 @@ async function loadDashboard() {
 
     try {
 
-        const data =
+        const result =
             await apiRequest(
                 "/api/dashboard"
             );
+
+
+        /*
+         * User is not authenticated
+         */
+
+        if (result.unauthorized) {
+
+            log(
+                "Dashboard: user is not authenticated."
+            );
+
+
+            setConnectionStatus(
+                false,
+                "Not connected"
+            );
+
+
+            if (elements.loginCard) {
+
+                elements.loginCard.style.display =
+                    "flex";
+            }
+
+
+            return;
+        }
+
+
+        /*
+         * Successful response
+         */
+
+        const data =
+            result.data;
 
 
         log(
@@ -404,27 +441,12 @@ async function loadDashboard() {
         );
 
 
-        if (!data) {
-            throw new Error(
-                "Backend returned empty response"
-            );
-        }
-
-
-        /*
-        ===============================================
-        RENDER
-        ===============================================
-        */
-
         renderDashboard(data);
 
 
         /*
-        ===============================================
-        HIDE LOGIN CARD
-        ===============================================
-        */
+         * Hide Google login card
+         */
 
         if (elements.loginCard) {
 
@@ -433,46 +455,29 @@ async function loadDashboard() {
         }
 
 
-        /*
-        ===============================================
-        CONNECTION STATUS
-        ===============================================
-        */
-
-        let updateMessage =
-            "Connected";
+        const updated =
+            data?.updatedAt;
 
 
-        if (data.updatedAt) {
+        if (updated) {
 
             const date =
-                new Date(
-                    data.updatedAt
-                );
+                new Date(updated);
 
 
-            if (
-                !Number.isNaN(
-                    date.getTime()
-                )
-            ) {
+            setConnectionStatus(
+                true,
+                `Updated ${date.toLocaleTimeString()}`
+            );
 
-                updateMessage =
-                    "Updated " +
-                    date.toLocaleTimeString();
-            }
+        } else {
+
+            setConnectionStatus(
+                true,
+                "Connected"
+            );
         }
 
-
-        setConnectionStatus(
-            true,
-            updateMessage
-        );
-
-
-        log(
-            "Dashboard loaded successfully."
-        );
 
     } catch (error) {
 
@@ -486,50 +491,27 @@ async function loadDashboard() {
             false,
             "Connection error"
         );
-
-
-        /*
-        ===============================================
-        SHOW LOGIN CARD
-        ===============================================
-        */
-
-        if (elements.loginCard) {
-            elements.loginCard.style.display =
-                "flex";
-        }
-
-
-        /*
-        ===============================================
-        DO NOT HIDE ACTUAL ERROR
-        ===============================================
-        */
-
-        if (
-            error.message &&
-            !error.message
-                .toLowerCase()
-                .includes("unauthorized")
-        ) {
-
-            console.error(
-                "AR8 dashboard error:",
-                error.message
-            );
-        }
     }
 }
 
 
-/* =====================================================
+/* ======================================================
    RENDER DASHBOARD
-===================================================== */
+====================================================== */
 
 function renderDashboard(data) {
 
+    if (!data) {
+        errorLog(
+            "No dashboard data received."
+        );
+        return;
+    }
+
+
     const channel =
         data.channel || {};
+
 
     const analytics =
         data.analytics || {};
@@ -540,6 +522,7 @@ function renderDashboard(data) {
         channel
     );
 
+
     log(
         "Rendering analytics:",
         analytics
@@ -547,10 +530,8 @@ function renderDashboard(data) {
 
 
     /*
-    ===============================================
-    SUBSCRIBERS
-    ===============================================
-    */
+     * SUBSCRIBERS
+     */
 
     if (elements.subscribers) {
 
@@ -562,10 +543,8 @@ function renderDashboard(data) {
 
 
     /*
-    ===============================================
-    TOTAL VIEWS
-    ===============================================
-    */
+     * VIEWS
+     */
 
     if (elements.views) {
 
@@ -577,53 +556,42 @@ function renderDashboard(data) {
 
 
     /*
-    ===============================================
-    WATCH TIME
-    ===============================================
-    */
+     * WATCH TIME
+     */
 
     if (elements.watchTime) {
 
-        if (
+        elements.watchTime.textContent =
             analytics.watchTime !==
-                null &&
+                undefined &&
             analytics.watchTime !==
-                undefined
-        ) {
-
-            elements.watchTime.textContent =
-                formatNumber(
+                null
+                ? `${formatNumber(
                     analytics.watchTime
-                ) + " min";
-
-        } else {
-
-            elements.watchTime.textContent =
-                "—";
-        }
+                  )} min`
+                : "—";
     }
 
 
     /*
-    ===============================================
-    ENGAGEMENT
-    ===============================================
-    */
+     * ENGAGEMENT
+     */
 
     if (elements.engagement) {
 
         elements.engagement.textContent =
-            formatCompact(
-                analytics.engagement
-            );
+            analytics.engagement !==
+                undefined
+                ? formatCompact(
+                    analytics.engagement
+                  )
+                : "—";
     }
 
 
     /*
-    ===============================================
-    AUDIENCE
-    ===============================================
-    */
+     * AUDIENCE
+     */
 
     if (elements.audienceNumber) {
 
@@ -635,10 +603,8 @@ function renderDashboard(data) {
 
 
     /*
-    ===============================================
-    SUBSCRIBERS GAINED
-    ===============================================
-    */
+     * GAINED / LOST
+     */
 
     const gained =
         Number(
@@ -646,41 +612,25 @@ function renderDashboard(data) {
         );
 
 
-    if (elements.gained) {
-
-        elements.gained.textContent =
-            formatNumber(
-                gained
-            );
-    }
-
-
-    /*
-    ===============================================
-    SUBSCRIBERS LOST
-    ===============================================
-    */
-
     const lost =
         Number(
             analytics.subscribersLost || 0
         );
 
 
-    if (elements.lost) {
+    if (elements.gained) {
 
-        elements.lost.textContent =
-            formatNumber(
-                lost
-            );
+        elements.gained.textContent =
+            formatNumber(gained);
     }
 
 
-    /*
-    ===============================================
-    NET GROWTH
-    ===============================================
-    */
+    if (elements.lost) {
+
+        elements.lost.textContent =
+            formatNumber(lost);
+    }
+
 
     if (elements.netGrowth) {
 
@@ -692,10 +642,8 @@ function renderDashboard(data) {
 
 
     /*
-    ===============================================
-    GROWTH LABELS
-    ===============================================
-    */
+     * SMALL STAT TEXT
+     */
 
     if (elements.subscriberGrowth) {
 
@@ -712,10 +660,8 @@ function renderDashboard(data) {
 
 
     /*
-    ===============================================
-    DAILY CHART
-    ===============================================
-    */
+     * CHART
+     */
 
     renderChart(
         analytics.dailyViews || []
@@ -723,10 +669,8 @@ function renderDashboard(data) {
 
 
     /*
-    ===============================================
-    VIDEOS
-    ===============================================
-    */
+     * VIDEOS
+     */
 
     renderVideos(
         data.videos || []
@@ -734,9 +678,9 @@ function renderDashboard(data) {
 }
 
 
-/* =====================================================
+/* ======================================================
    CHART
-===================================================== */
+====================================================== */
 
 function renderChart(rows) {
 
@@ -745,7 +689,8 @@ function renderChart(rows) {
     }
 
 
-    elements.viewsChart.innerHTML = "";
+    elements.viewsChart.innerHTML =
+        "";
 
 
     if (
@@ -789,10 +734,8 @@ function renderChart(rows) {
 
         const height =
             Math.max(
-                value > 0
-                    ? (value / max) * 100
-                    : 2,
-                2
+                5,
+                (value / max) * 100
             );
 
 
@@ -803,7 +746,7 @@ function renderChart(rows) {
 
 
         bar.style.height =
-            height + "%";
+            `${height}%`;
 
 
         bar.style.flex =
@@ -839,9 +782,9 @@ function renderChart(rows) {
 }
 
 
-/* =====================================================
+/* ======================================================
    VIDEOS
-===================================================== */
+====================================================== */
 
 function renderVideos(videos) {
 
@@ -850,7 +793,8 @@ function renderVideos(videos) {
     }
 
 
-    elements.videosList.innerHTML = "";
+    elements.videosList.innerHTML =
+        "";
 
 
     if (elements.videoCount) {
@@ -927,6 +871,7 @@ function renderVideos(videos) {
                     video.views
                 )} views
             </div>
+
         `;
 
 
@@ -938,25 +883,18 @@ function renderVideos(videos) {
 }
 
 
-/* =====================================================
+/* ======================================================
    REFRESH BUTTON
-===================================================== */
+====================================================== */
 
 if (elements.refreshBtn) {
 
     elements.refreshBtn.addEventListener(
         "click",
-        async function () {
-
-            if (
-                elements.refreshBtn.disabled
-            ) {
-                return;
-            }
-
+        async () => {
 
             log(
-                "Manual refresh clicked."
+                "Refresh button clicked."
             );
 
 
@@ -964,8 +902,12 @@ if (elements.refreshBtn) {
                 true;
 
 
-            elements.refreshBtn.style.opacity =
-                "0.6";
+            const original =
+                elements.refreshBtn.textContent;
+
+
+            elements.refreshBtn.textContent =
+                "↻";
 
 
             try {
@@ -977,8 +919,9 @@ if (elements.refreshBtn) {
                 elements.refreshBtn.disabled =
                     false;
 
-                elements.refreshBtn.style.opacity =
-                    "1";
+
+                elements.refreshBtn.textContent =
+                    original;
             }
 
         }
@@ -986,21 +929,29 @@ if (elements.refreshBtn) {
 }
 
 
-/* =====================================================
+/* ======================================================
    DATE RANGE
-===================================================== */
+====================================================== */
 
 if (elements.dateRange) {
 
     elements.dateRange.addEventListener(
         "change",
-        function () {
+        () => {
 
             log(
-                "Date range changed:",
+                "Date range:",
                 elements.dateRange.value
             );
 
+
+            /*
+             * Current backend returns
+             * its available analytics range.
+             *
+             * When backend supports ?days=
+             * this can be extended.
+             */
 
             loadDashboard();
         }
@@ -1008,9 +959,9 @@ if (elements.dateRange) {
 }
 
 
-/* =====================================================
+/* ======================================================
    SIDEBAR NAVIGATION
-===================================================== */
+====================================================== */
 
 const navItems =
     document.querySelectorAll(
@@ -1053,7 +1004,9 @@ function activateNav(button) {
 }
 
 
-function scrollToSection(element) {
+function scrollToSection(
+    element
+) {
 
     if (!element) {
         return;
@@ -1072,16 +1025,14 @@ navItems.forEach(
 
         button.addEventListener(
             "click",
-            function () {
+            () => {
 
-                activateNav(
-                    button
-                );
+                activateNav(button);
 
 
                 /*
-                Dashboard
-                */
+                 * Dashboard
+                 */
 
                 if (index === 0) {
 
@@ -1095,8 +1046,8 @@ navItems.forEach(
 
 
                 /*
-                Analytics
-                */
+                 * Analytics
+                 */
 
                 if (index === 1) {
 
@@ -1109,8 +1060,8 @@ navItems.forEach(
 
 
                 /*
-                Videos
-                */
+                 * Videos
+                 */
 
                 if (index === 2) {
 
@@ -1123,8 +1074,8 @@ navItems.forEach(
 
 
                 /*
-                Audience
-                */
+                 * Audience
+                 */
 
                 if (index === 3) {
 
@@ -1137,8 +1088,8 @@ navItems.forEach(
 
 
                 /*
-                Settings
-                */
+                 * Settings
+                 */
 
                 if (index === 4) {
 
@@ -1152,9 +1103,9 @@ navItems.forEach(
 );
 
 
-/* =====================================================
+/* ======================================================
    SETTINGS
-===================================================== */
+====================================================== */
 
 function showSettings() {
 
@@ -1260,35 +1211,36 @@ function showSettings() {
         );
 
 
-        /*
-        Close
-        */
-
-        document
-            .getElementById(
+        const close =
+            document.getElementById(
                 "ar8SettingsClose"
-            )
-            .addEventListener(
-                "click",
-                closeSettings
             );
 
 
-        /*
-        Outside click
-        */
+        if (close) {
 
-        document
-            .getElementById(
-                "ar8SettingsOverlay"
-            )
-            .addEventListener(
+            close.addEventListener(
                 "click",
-                function (event) {
+                closeSettings
+            );
+        }
+
+
+        const overlay =
+            document.getElementById(
+                "ar8SettingsOverlay"
+            );
+
+
+        if (overlay) {
+
+            overlay.addEventListener(
+                "click",
+                event => {
 
                     if (
-                        event.target.id ===
-                        "ar8SettingsOverlay"
+                        event.target ===
+                        overlay
                     ) {
 
                         closeSettings();
@@ -1296,20 +1248,22 @@ function showSettings() {
 
                 }
             );
+        }
 
 
-        /*
-        Logout
-        */
-
-        document
-            .getElementById(
+        const logoutButton =
+            document.getElementById(
                 "ar8LogoutButton"
-            )
-            .addEventListener(
+            );
+
+
+        if (logoutButton) {
+
+            logoutButton.addEventListener(
                 "click",
                 logout
             );
+        }
     }
 
 
@@ -1337,9 +1291,9 @@ function closeSettings() {
 }
 
 
-/* =====================================================
+/* ======================================================
    API STATUS
-===================================================== */
+====================================================== */
 
 async function checkApiStatus() {
 
@@ -1354,24 +1308,24 @@ async function checkApiStatus() {
     }
 
 
+    status.textContent =
+        "Checking...";
+
+
     try {
-
-        /*
-        Your Railway backend root
-        already returns:
-
-        {
-            "ok": true,
-            "service": "AR8 Studio API"
-        }
-        */
 
         const response =
             await fetch(
-                API_BASE,
+                `${API_BASE}/api/health`,
                 {
                     method: "GET",
-                    cache: "no-store"
+
+                    credentials: "include",
+
+                    headers: {
+                        "Accept":
+                            "application/json"
+                    }
                 }
             );
 
@@ -1381,52 +1335,51 @@ async function checkApiStatus() {
             status.textContent =
                 "Online";
 
-            status.style.color =
-                "#00d26a";
-
         } else {
 
             status.textContent =
-                "Offline";
-
-            status.style.color =
-                "#ff2020";
+                `Offline (${response.status})`;
         }
+
 
     } catch (error) {
 
         errorLog(
-            "API status error:",
+            "Health check failed:",
             error
         );
 
 
         status.textContent =
             "Offline";
-
-        status.style.color =
-            "#ff2020";
     }
 }
 
 
-/* =====================================================
+/* ======================================================
    LOGOUT
-===================================================== */
+====================================================== */
 
 async function logout() {
 
     log(
-        "Logging out..."
+        "Disconnecting YouTube..."
     );
 
 
     try {
 
-        await apiRequest(
-            "/api/auth/logout",
+        await fetch(
+            `${API_BASE}/api/auth/logout`,
             {
-                method: "POST"
+                method: "POST",
+
+                credentials: "include",
+
+                headers: {
+                    "Accept":
+                        "application/json"
+                }
             }
         );
 
@@ -1440,8 +1393,8 @@ async function logout() {
 
 
     /*
-    Show login
-    */
+     * Show login card
+     */
 
     if (elements.loginCard) {
 
@@ -1451,8 +1404,8 @@ async function logout() {
 
 
     /*
-    Reset status
-    */
+     * Reset status
+     */
 
     setConnectionStatus(
         false,
@@ -1461,152 +1414,87 @@ async function logout() {
 
 
     /*
-    Reset dashboard
-    */
+     * Reset statistics
+     */
 
-    resetDashboard();
+    const resetElements = [
+
+        elements.subscribers,
+
+        elements.views,
+
+        elements.watchTime,
+
+        elements.engagement,
+
+        elements.audienceNumber,
+
+        elements.gained,
+
+        elements.lost,
+
+        elements.netGrowth
+    ];
+
+
+    resetElements.forEach(
+        element => {
+
+            if (element) {
+
+                element.textContent =
+                    "—";
+            }
+
+        }
+    );
 
 
     /*
-    Close settings
-    */
+     * Reset videos
+     */
+
+    if (elements.videosList) {
+
+        elements.videosList.innerHTML = `
+
+            <div class="empty-state">
+
+                <div>▶</div>
+
+                <p>
+                    Connect your YouTube channel
+                    to load your videos.
+                </p>
+
+            </div>
+
+        `;
+    }
+
+
+    /*
+     * Close settings
+     */
 
     closeSettings();
 }
 
 
-/* =====================================================
-   OAUTH CALLBACK HANDLING
-===================================================== */
-
-function handleOAuthCallback() {
-
-    const params =
-        new URLSearchParams(
-            window.location.search
-        );
-
-
-    const connected =
-        params.get(
-            "connected"
-        );
-
-
-    const error =
-        params.get(
-            "error"
-        );
-
-
-    if (connected === "true") {
-
-        log(
-            "OAuth authorization successful."
-        );
-
-
-        /*
-        Remove ?connected=true
-        without reloading page
-        */
-
-        window.history.replaceState(
-            {},
-            document.title,
-            window.location.pathname
-        );
-
-
-        return true;
-    }
-
-
-    if (error) {
-
-        errorLog(
-            "OAuth error:",
-            error
-        );
-
-
-        window.history.replaceState(
-            {},
-            document.title,
-            window.location.pathname
-        );
-    }
-
-
-    return false;
-}
-
-
-/* =====================================================
+/* ======================================================
    START APPLICATION
-===================================================== */
-
-async function startApp() {
-
-    log(
-        "================================="
-    );
-
-    log(
-        "AR8 STUDIO starting..."
-    );
-
-    log(
-        "Frontend:",
-        FRONTEND_ORIGIN
-    );
-
-    log(
-        "Backend:",
-        API_BASE
-    );
-
-    log(
-        "================================="
-    );
-
-
-    /*
-    Handle OAuth callback
-    */
-
-    const oauthSuccess =
-        handleOAuthCallback();
-
-
-    /*
-    Always try dashboard.
-    If session exists, data loads.
-    If session doesn't exist, login card remains.
-    */
-
-    await loadDashboard();
-
-
-    /*
-    If OAuth was successful but
-    dashboard failed, log clearly.
-    */
-
-    if (oauthSuccess) {
-
-        log(
-            "OAuth completed. Dashboard request attempted."
-        );
-    }
-}
-
-
-/* =====================================================
-   RUN
-===================================================== */
+====================================================== */
 
 document.addEventListener(
     "DOMContentLoaded",
-    startApp
+    () => {
+
+        log(
+            "AR8 frontend loaded."
+        );
+
+
+        loadDashboard();
+
+    }
 );
