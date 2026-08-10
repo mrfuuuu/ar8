@@ -1,16 +1,33 @@
+/*
+=========================================================
+AR8 STUDIO
+YouTube Analytics Dashboard
+Frontend: GitHub Pages
+Backend: Railway
+=========================================================
+*/
 
+"use strict";
+
+/* =====================================================
+   CONFIG
+===================================================== */
 
 const API_BASE =
     "https://ar8-backend-production.up.railway.app";
 
+const FRONTEND_ORIGIN =
+    "https://mrfuuuu.github.io";
 
-/* =========================
+
+/* =====================================================
    ELEMENTS
-========================= */
+===================================================== */
 
 const elements = {
     loginCard: document.getElementById("loginCard"),
     googleLogin: document.getElementById("googleLogin"),
+
     refreshBtn: document.getElementById("refreshBtn"),
     updateText: document.getElementById("updateText"),
 
@@ -20,11 +37,13 @@ const elements = {
     engagement: document.getElementById("engagement"),
 
     audienceNumber: document.getElementById("audienceNumber"),
+
     gained: document.getElementById("gained"),
     lost: document.getElementById("lost"),
     netGrowth: document.getElementById("netGrowth"),
 
     viewsChart: document.getElementById("viewsChart"),
+
     videosList: document.getElementById("videosList"),
     videoCount: document.getElementById("videoCount"),
 
@@ -38,12 +57,24 @@ const elements = {
 };
 
 
-/* =========================
-   HELPERS
-========================= */
+/* =====================================================
+   DEBUG
+===================================================== */
+
+function log(...args) {
+    console.log("[AR8]", ...args);
+}
+
+function errorLog(...args) {
+    console.error("[AR8 ERROR]", ...args);
+}
+
+
+/* =====================================================
+   FORMAT HELPERS
+===================================================== */
 
 function formatNumber(value) {
-
     if (
         value === null ||
         value === undefined ||
@@ -63,7 +94,6 @@ function formatNumber(value) {
 
 
 function formatCompact(value) {
-
     if (
         value === null ||
         value === undefined ||
@@ -78,12 +108,19 @@ function formatCompact(value) {
         return "—";
     }
 
+    if (number >= 1000000000) {
+        return (
+            (number / 1000000000)
+                .toFixed(1)
+                .replace(".0", "") + "B"
+        );
+    }
+
     if (number >= 1000000) {
         return (
             (number / 1000000)
                 .toFixed(1)
-                .replace(".0", "") +
-            "M"
+                .replace(".0", "") + "M"
         );
     }
 
@@ -91,8 +128,7 @@ function formatCompact(value) {
         return (
             (number / 1000)
                 .toFixed(1)
-                .replace(".0", "") +
-            "K"
+                .replace(".0", "") + "K"
         );
     }
 
@@ -101,7 +137,6 @@ function formatCompact(value) {
 
 
 function escapeHtml(value) {
-
     return String(value ?? "")
         .replaceAll("&", "&amp;")
         .replaceAll("<", "&lt;")
@@ -111,34 +146,26 @@ function escapeHtml(value) {
 }
 
 
-/* =========================
+/* =====================================================
    CONNECTION STATUS
-========================= */
+===================================================== */
 
-function setConnectionStatus(
-    connected,
-    text
-) {
+function setConnectionStatus(connected, text) {
 
     if (elements.updateText) {
-
         elements.updateText.textContent =
             text ||
-            (
-                connected
-                    ? "Connected"
-                    : "Not connected"
-            );
+            (connected
+                ? "Connected"
+                : "Not connected");
     }
 
 
-    const connection =
+    const lastUpdate =
         document.querySelector(".last-update");
 
-
-    if (connection) {
-
-        connection.classList.toggle(
+    if (lastUpdate) {
+        lastUpdate.classList.toggle(
             "connected",
             connected
         );
@@ -148,15 +175,12 @@ function setConnectionStatus(
     const sidebarConnection =
         document.querySelector(".connection");
 
-
     if (sidebarConnection) {
 
         const small =
             sidebarConnection.querySelector("small");
 
-
         if (small) {
-
             small.textContent =
                 connected
                     ? "YouTube connected"
@@ -169,51 +193,196 @@ function setConnectionStatus(
                 ".status-dot"
             );
 
-
         if (dot) {
-
             dot.style.background =
                 connected
-                    ? "#00ff88"
+                    ? "#00d26a"
                     : "#555";
         }
     }
 }
 
 
-/* =========================
+/* =====================================================
+   RESET DASHBOARD
+===================================================== */
+
+function resetDashboard() {
+
+    const resetElements = [
+        elements.subscribers,
+        elements.views,
+        elements.watchTime,
+        elements.engagement,
+        elements.audienceNumber,
+        elements.gained,
+        elements.lost,
+        elements.netGrowth
+    ];
+
+    resetElements.forEach(element => {
+
+        if (element) {
+            element.textContent = "—";
+        }
+
+    });
+
+
+    if (elements.viewsChart) {
+
+        elements.viewsChart.innerHTML = `
+            <div class="chart-empty">
+                Connect YouTube to load analytics.
+            </div>
+        `;
+    }
+
+
+    if (elements.videosList) {
+
+        elements.videosList.innerHTML = `
+            <div class="empty-state">
+                <div>▶</div>
+                <p>
+                    Connect your YouTube channel
+                    to load your videos.
+                </p>
+            </div>
+        `;
+    }
+
+
+    if (elements.videoCount) {
+        elements.videoCount.textContent =
+            "0 videos";
+    }
+}
+
+
+/* =====================================================
    GOOGLE LOGIN
-========================= */
+===================================================== */
 
 if (elements.googleLogin) {
 
     elements.googleLogin.addEventListener(
         "click",
-        () => {
+        function () {
 
-            console.log(
-                "Opening Google OAuth..."
-            );
+            log("Starting Google OAuth...");
 
+            elements.googleLogin.disabled = true;
+
+            elements.googleLogin.style.opacity =
+                "0.6";
 
             window.location.href =
-                `${API_BASE}/api/auth/login`;
-
+                API_BASE + "/api/auth/login";
         }
     );
 }
 
 
-/* =========================
+/* =====================================================
+   API REQUEST HELPER
+===================================================== */
+
+async function apiRequest(endpoint, options = {}) {
+
+    const url =
+        API_BASE + endpoint;
+
+    log("API request:", url);
+
+
+    const response =
+        await fetch(
+            url,
+            {
+                method:
+                    options.method || "GET",
+
+                credentials:
+                    "include",
+
+                cache:
+                    "no-store",
+
+                headers: {
+                    "Accept":
+                        "application/json",
+
+                    ...(options.headers || {})
+                },
+
+                body:
+                    options.body
+            }
+        );
+
+
+    log(
+        "API response:",
+        endpoint,
+        response.status
+    );
+
+
+    const contentType =
+        response.headers.get(
+            "content-type"
+        ) || "";
+
+
+    let data = null;
+
+
+    if (
+        contentType.includes(
+            "application/json"
+        )
+    ) {
+
+        data =
+            await response.json();
+
+    } else {
+
+        const text =
+            await response.text();
+
+        data = text;
+    }
+
+
+    if (!response.ok) {
+
+        const message =
+            typeof data === "object"
+                ? (
+                    data.error ||
+                    data.message ||
+                    `HTTP ${response.status}`
+                )
+                : data ||
+                  `HTTP ${response.status}`;
+
+        throw new Error(message);
+    }
+
+
+    return data;
+}
+
+
+/* =====================================================
    LOAD DASHBOARD
-========================= */
+===================================================== */
 
 async function loadDashboard() {
 
-    console.log(
-        "Loading AR8 dashboard..."
-    );
-
+    log("Loading dashboard...");
 
     setConnectionStatus(
         false,
@@ -223,97 +392,39 @@ async function loadDashboard() {
 
     try {
 
-        const response =
-            await fetch(
-                `${API_BASE}/api/dashboard`,
-                {
-                    method: "GET",
-
-                    credentials: "include",
-
-                    headers: {
-                        "Accept":
-                            "application/json"
-                    },
-
-                    cache: "no-store"
-                }
-            );
-
-
-        console.log(
-            "Dashboard status:",
-            response.status
-        );
-
-
-        /* =========================
-           NOT AUTHENTICATED
-        ========================= */
-
-        if (response.status === 401) {
-
-            setConnectionStatus(
-                false,
-                "Not connected"
-            );
-
-
-            if (elements.loginCard) {
-
-                elements.loginCard.style.display =
-                    "flex";
-            }
-
-
-            return;
-        }
-
-
-        /* =========================
-           OTHER ERROR
-        ========================= */
-
-        if (!response.ok) {
-
-            const errorText =
-                await response.text();
-
-            console.error(
-                "Dashboard error:",
-                errorText
-            );
-
-            throw new Error(
-                `Dashboard request failed: ${response.status}`
-            );
-        }
-
-
-        /* =========================
-           JSON
-        ========================= */
-
         const data =
-            await response.json();
+            await apiRequest(
+                "/api/dashboard"
+            );
 
 
-        console.log(
-            "AR8 dashboard data:",
+        log(
+            "Dashboard data received:",
             data
         );
 
 
-        /* =========================
-           RENDER
-        ========================= */
+        if (!data) {
+            throw new Error(
+                "Backend returned empty response"
+            );
+        }
+
+
+        /*
+        ===============================================
+        RENDER
+        ===============================================
+        */
 
         renderDashboard(data);
 
 
-        /* =========================
-           SUCCESS
-        ========================= */
+        /*
+        ===============================================
+        HIDE LOGIN CARD
+        ===============================================
+        */
 
         if (elements.loginCard) {
 
@@ -322,24 +433,51 @@ async function loadDashboard() {
         }
 
 
-        const updatedText =
-            data.updatedAt
-                ? `Updated ${new Date(
+        /*
+        ===============================================
+        CONNECTION STATUS
+        ===============================================
+        */
+
+        let updateMessage =
+            "Connected";
+
+
+        if (data.updatedAt) {
+
+            const date =
+                new Date(
                     data.updatedAt
-                  ).toLocaleTimeString()}`
-                : "Connected";
+                );
+
+
+            if (
+                !Number.isNaN(
+                    date.getTime()
+                )
+            ) {
+
+                updateMessage =
+                    "Updated " +
+                    date.toLocaleTimeString();
+            }
+        }
 
 
         setConnectionStatus(
             true,
-            updatedText
+            updateMessage
         );
 
 
+        log(
+            "Dashboard loaded successfully."
+        );
+
     } catch (error) {
 
-        console.error(
-            "AR8 Dashboard Error:",
+        errorLog(
+            "Dashboard loading failed:",
             error
         );
 
@@ -348,26 +486,71 @@ async function loadDashboard() {
             false,
             "Connection error"
         );
+
+
+        /*
+        ===============================================
+        SHOW LOGIN CARD
+        ===============================================
+        */
+
+        if (elements.loginCard) {
+            elements.loginCard.style.display =
+                "flex";
+        }
+
+
+        /*
+        ===============================================
+        DO NOT HIDE ACTUAL ERROR
+        ===============================================
+        */
+
+        if (
+            error.message &&
+            !error.message
+                .toLowerCase()
+                .includes("unauthorized")
+        ) {
+
+            console.error(
+                "AR8 dashboard error:",
+                error.message
+            );
+        }
     }
 }
 
 
-/* =========================
+/* =====================================================
    RENDER DASHBOARD
-========================= */
+===================================================== */
 
 function renderDashboard(data) {
 
     const channel =
-        data?.channel || {};
+        data.channel || {};
 
     const analytics =
-        data?.analytics || {};
+        data.analytics || {};
 
 
-    /* =========================
-       CHANNEL
-    ========================= */
+    log(
+        "Rendering channel:",
+        channel
+    );
+
+    log(
+        "Rendering analytics:",
+        analytics
+    );
+
+
+    /*
+    ===============================================
+    SUBSCRIBERS
+    ===============================================
+    */
 
     if (elements.subscribers) {
 
@@ -378,6 +561,12 @@ function renderDashboard(data) {
     }
 
 
+    /*
+    ===============================================
+    TOTAL VIEWS
+    ===============================================
+    */
+
     if (elements.views) {
 
         elements.views.textContent =
@@ -387,41 +576,54 @@ function renderDashboard(data) {
     }
 
 
-    /* =========================
-       WATCH TIME
-    ========================= */
+    /*
+    ===============================================
+    WATCH TIME
+    ===============================================
+    */
 
     if (elements.watchTime) {
 
-        elements.watchTime.textContent =
-            analytics.watchTime !== undefined &&
-            analytics.watchTime !== null
-                ? `${formatNumber(
+        if (
+            analytics.watchTime !==
+                null &&
+            analytics.watchTime !==
+                undefined
+        ) {
+
+            elements.watchTime.textContent =
+                formatNumber(
                     analytics.watchTime
-                  )} min`
-                : "—";
+                ) + " min";
+
+        } else {
+
+            elements.watchTime.textContent =
+                "—";
+        }
     }
 
 
-    /* =========================
-       ENGAGEMENT
-    ========================= */
+    /*
+    ===============================================
+    ENGAGEMENT
+    ===============================================
+    */
 
     if (elements.engagement) {
 
         elements.engagement.textContent =
-            analytics.engagement !== undefined &&
-            analytics.engagement !== null
-                ? formatNumber(
-                    analytics.engagement
-                  )
-                : "—";
+            formatCompact(
+                analytics.engagement
+            );
     }
 
 
-    /* =========================
-       AUDIENCE
-    ========================= */
+    /*
+    ===============================================
+    AUDIENCE
+    ===============================================
+    */
 
     if (elements.audienceNumber) {
 
@@ -432,9 +634,11 @@ function renderDashboard(data) {
     }
 
 
-    /* =========================
-       GROWTH
-    ========================= */
+    /*
+    ===============================================
+    SUBSCRIBERS GAINED
+    ===============================================
+    */
 
     const gained =
         Number(
@@ -442,25 +646,41 @@ function renderDashboard(data) {
         );
 
 
+    if (elements.gained) {
+
+        elements.gained.textContent =
+            formatNumber(
+                gained
+            );
+    }
+
+
+    /*
+    ===============================================
+    SUBSCRIBERS LOST
+    ===============================================
+    */
+
     const lost =
         Number(
             analytics.subscribersLost || 0
         );
 
 
-    if (elements.gained) {
-
-        elements.gained.textContent =
-            formatNumber(gained);
-    }
-
-
     if (elements.lost) {
 
         elements.lost.textContent =
-            formatNumber(lost);
+            formatNumber(
+                lost
+            );
     }
 
+
+    /*
+    ===============================================
+    NET GROWTH
+    ===============================================
+    */
 
     if (elements.netGrowth) {
 
@@ -471,9 +691,11 @@ function renderDashboard(data) {
     }
 
 
-    /* =========================
-       SMALL TEXT
-    ========================= */
+    /*
+    ===============================================
+    GROWTH LABELS
+    ===============================================
+    */
 
     if (elements.subscriberGrowth) {
 
@@ -489,28 +711,32 @@ function renderDashboard(data) {
     }
 
 
-    /* =========================
-       CHART
-    ========================= */
+    /*
+    ===============================================
+    DAILY CHART
+    ===============================================
+    */
 
     renderChart(
         analytics.dailyViews || []
     );
 
 
-    /* =========================
-       VIDEOS
-    ========================= */
+    /*
+    ===============================================
+    VIDEOS
+    ===============================================
+    */
 
     renderVideos(
-        data?.videos || []
+        data.videos || []
     );
 }
 
 
-/* =========================
+/* =====================================================
    CHART
-========================= */
+===================================================== */
 
 function renderChart(rows) {
 
@@ -563,8 +789,10 @@ function renderChart(rows) {
 
         const height =
             Math.max(
-                5,
-                (value / max) * 100
+                value > 0
+                    ? (value / max) * 100
+                    : 2,
+                2
             );
 
 
@@ -575,7 +803,7 @@ function renderChart(rows) {
 
 
         bar.style.height =
-            `${height}%`;
+            height + "%";
 
 
         bar.style.flex =
@@ -611,9 +839,9 @@ function renderChart(rows) {
 }
 
 
-/* =========================
+/* =====================================================
    VIDEOS
-========================= */
+===================================================== */
 
 function renderVideos(videos) {
 
@@ -699,7 +927,6 @@ function renderVideos(videos) {
                     video.views
                 )} views
             </div>
-
         `;
 
 
@@ -711,15 +938,27 @@ function renderVideos(videos) {
 }
 
 
-/* =========================
-   REFRESH
-========================= */
+/* =====================================================
+   REFRESH BUTTON
+===================================================== */
 
 if (elements.refreshBtn) {
 
     elements.refreshBtn.addEventListener(
         "click",
-        async () => {
+        async function () {
+
+            if (
+                elements.refreshBtn.disabled
+            ) {
+                return;
+            }
+
+
+            log(
+                "Manual refresh clicked."
+            );
+
 
             elements.refreshBtn.disabled =
                 true;
@@ -747,26 +986,31 @@ if (elements.refreshBtn) {
 }
 
 
-/* =========================
+/* =====================================================
    DATE RANGE
-========================= */
+===================================================== */
 
 if (elements.dateRange) {
 
     elements.dateRange.addEventListener(
         "change",
-        () => {
+        function () {
+
+            log(
+                "Date range changed:",
+                elements.dateRange.value
+            );
+
 
             loadDashboard();
-
         }
     );
 }
 
 
-/* =========================
+/* =====================================================
    SIDEBAR NAVIGATION
-========================= */
+===================================================== */
 
 const navItems =
     document.querySelectorAll(
@@ -828,12 +1072,16 @@ navItems.forEach(
 
         button.addEventListener(
             "click",
-            () => {
+            function () {
 
-                activateNav(button);
+                activateNav(
+                    button
+                );
 
 
-                /* Dashboard */
+                /*
+                Dashboard
+                */
 
                 if (index === 0) {
 
@@ -846,7 +1094,9 @@ navItems.forEach(
                 }
 
 
-                /* Analytics */
+                /*
+                Analytics
+                */
 
                 if (index === 1) {
 
@@ -858,7 +1108,9 @@ navItems.forEach(
                 }
 
 
-                /* Videos */
+                /*
+                Videos
+                */
 
                 if (index === 2) {
 
@@ -870,7 +1122,9 @@ navItems.forEach(
                 }
 
 
-                /* Audience */
+                /*
+                Audience
+                */
 
                 if (index === 3) {
 
@@ -882,12 +1136,13 @@ navItems.forEach(
                 }
 
 
-                /* Settings */
+                /*
+                Settings
+                */
 
                 if (index === 4) {
 
                     showSettings();
-
                 }
 
             }
@@ -897,9 +1152,9 @@ navItems.forEach(
 );
 
 
-/* =========================
+/* =====================================================
    SETTINGS
-========================= */
+===================================================== */
 
 function showSettings() {
 
@@ -1005,6 +1260,10 @@ function showSettings() {
         );
 
 
+        /*
+        Close
+        */
+
         document
             .getElementById(
                 "ar8SettingsClose"
@@ -1015,13 +1274,17 @@ function showSettings() {
             );
 
 
+        /*
+        Outside click
+        */
+
         document
             .getElementById(
                 "ar8SettingsOverlay"
             )
             .addEventListener(
                 "click",
-                event => {
+                function (event) {
 
                     if (
                         event.target.id ===
@@ -1029,12 +1292,15 @@ function showSettings() {
                     ) {
 
                         closeSettings();
-
                     }
 
                 }
             );
 
+
+        /*
+        Logout
+        */
 
         document
             .getElementById(
@@ -1044,7 +1310,6 @@ function showSettings() {
                 "click",
                 logout
             );
-
     }
 
 
@@ -1055,10 +1320,6 @@ function showSettings() {
     checkApiStatus();
 }
 
-
-/* =========================
-   CLOSE SETTINGS
-========================= */
 
 function closeSettings() {
 
@@ -1076,21 +1337,9 @@ function closeSettings() {
 }
 
 
-/* =========================
+/* =====================================================
    API STATUS
-========================= */
-
-/*
-    IMPORTANT:
-
-    Do NOT use /api/health here.
-
-    Your Railway root endpoint is confirmed working:
-
-    https://ar8-backend-production.up.railway.app/
-
-    Therefore we check the ROOT endpoint.
-*/
+===================================================== */
 
 async function checkApiStatus() {
 
@@ -1105,15 +1354,21 @@ async function checkApiStatus() {
     }
 
 
-    status.textContent =
-        "Checking...";
-
-
     try {
+
+        /*
+        Your Railway backend root
+        already returns:
+
+        {
+            "ok": true,
+            "service": "AR8 Studio API"
+        }
+        */
 
         const response =
             await fetch(
-                `${API_BASE}/`,
+                API_BASE,
                 {
                     method: "GET",
                     cache: "no-store"
@@ -1127,7 +1382,7 @@ async function checkApiStatus() {
                 "Online";
 
             status.style.color =
-                "#00ff88";
+                "#00d26a";
 
         } else {
 
@@ -1135,13 +1390,12 @@ async function checkApiStatus() {
                 "Offline";
 
             status.style.color =
-                "#ff4444";
+                "#ff2020";
         }
-
 
     } catch (error) {
 
-        console.error(
+        errorLog(
             "API status error:",
             error
         );
@@ -1151,46 +1405,43 @@ async function checkApiStatus() {
             "Offline";
 
         status.style.color =
-            "#ff4444";
+            "#ff2020";
     }
 }
 
 
-/* =========================
+/* =====================================================
    LOGOUT
-========================= */
+===================================================== */
 
 async function logout() {
 
+    log(
+        "Logging out..."
+    );
+
+
     try {
 
-        const response =
-            await fetch(
-                `${API_BASE}/api/auth/logout`,
-                {
-                    method: "POST",
-                    credentials: "include"
-                }
-            );
-
-
-        console.log(
-            "Logout status:",
-            response.status
+        await apiRequest(
+            "/api/auth/logout",
+            {
+                method: "POST"
+            }
         );
-
 
     } catch (error) {
 
-        console.error(
+        errorLog(
             "Logout error:",
             error
         );
-
     }
 
 
-    /* Show login */
+    /*
+    Show login
+    */
 
     if (elements.loginCard) {
 
@@ -1199,93 +1450,163 @@ async function logout() {
     }
 
 
+    /*
+    Reset status
+    */
+
     setConnectionStatus(
         false,
         "Not connected"
     );
 
 
-    /* Reset stats */
+    /*
+    Reset dashboard
+    */
 
-    [
-        elements.subscribers,
-        elements.views,
-        elements.watchTime,
-        elements.engagement,
-        elements.audienceNumber,
-        elements.gained,
-        elements.lost,
-        elements.netGrowth
-    ].forEach(element => {
-
-        if (element) {
-
-            element.textContent =
-                "—";
-        }
-
-    });
+    resetDashboard();
 
 
-    /* Reset videos */
-
-    if (elements.videosList) {
-
-        elements.videosList.innerHTML = `
-
-            <div class="empty-state">
-
-                <div>▶</div>
-
-                <p>
-                    Connect your YouTube channel
-                    to load your videos.
-                </p>
-
-            </div>
-
-        `;
-    }
-
-
-    if (elements.videoCount) {
-
-        elements.videoCount.textContent =
-            "—";
-    }
-
-
-    /* Reset chart */
-
-    if (elements.viewsChart) {
-
-        elements.viewsChart.innerHTML = `
-
-            <div class="chart-empty">
-                Connect YouTube to load analytics.
-            </div>
-
-        `;
-    }
-
+    /*
+    Close settings
+    */
 
     closeSettings();
 }
 
 
-/* =========================
-   START
-========================= */
+/* =====================================================
+   OAUTH CALLBACK HANDLING
+===================================================== */
 
-console.log(
-    "AR8 Studio frontend loaded."
+function handleOAuthCallback() {
+
+    const params =
+        new URLSearchParams(
+            window.location.search
+        );
+
+
+    const connected =
+        params.get(
+            "connected"
+        );
+
+
+    const error =
+        params.get(
+            "error"
+        );
+
+
+    if (connected === "true") {
+
+        log(
+            "OAuth authorization successful."
+        );
+
+
+        /*
+        Remove ?connected=true
+        without reloading page
+        */
+
+        window.history.replaceState(
+            {},
+            document.title,
+            window.location.pathname
+        );
+
+
+        return true;
+    }
+
+
+    if (error) {
+
+        errorLog(
+            "OAuth error:",
+            error
+        );
+
+
+        window.history.replaceState(
+            {},
+            document.title,
+            window.location.pathname
+        );
+    }
+
+
+    return false;
+}
+
+
+/* =====================================================
+   START APPLICATION
+===================================================== */
+
+async function startApp() {
+
+    log(
+        "================================="
+    );
+
+    log(
+        "AR8 STUDIO starting..."
+    );
+
+    log(
+        "Frontend:",
+        FRONTEND_ORIGIN
+    );
+
+    log(
+        "Backend:",
+        API_BASE
+    );
+
+    log(
+        "================================="
+    );
+
+
+    /*
+    Handle OAuth callback
+    */
+
+    const oauthSuccess =
+        handleOAuthCallback();
+
+
+    /*
+    Always try dashboard.
+    If session exists, data loads.
+    If session doesn't exist, login card remains.
+    */
+
+    await loadDashboard();
+
+
+    /*
+    If OAuth was successful but
+    dashboard failed, log clearly.
+    */
+
+    if (oauthSuccess) {
+
+        log(
+            "OAuth completed. Dashboard request attempted."
+        );
+    }
+}
+
+
+/* =====================================================
+   RUN
+===================================================== */
+
+document.addEventListener(
+    "DOMContentLoaded",
+    startApp
 );
-
-console.log(
-    "Backend:",
-    API_BASE
-);
-
-
-
-loadDashboard();
