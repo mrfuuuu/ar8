@@ -6,7 +6,8 @@
     Railway
 */
 
-const API_BASE = "https://ar8-backend-production.up.railway.app";
+const API_BASE =
+    "https://ar8-backend-production.up.railway.app";
 
 
 /* =========================
@@ -14,35 +15,23 @@ const API_BASE = "https://ar8-backend-production.up.railway.app";
 ========================= */
 
 const elements = {
-
     loginCard: document.getElementById("loginCard"),
-
     googleLogin: document.getElementById("googleLogin"),
-
     refreshBtn: document.getElementById("refreshBtn"),
-
     updateText: document.getElementById("updateText"),
 
     subscribers: document.getElementById("subscribers"),
-
     views: document.getElementById("views"),
-
     watchTime: document.getElementById("watchTime"),
-
     engagement: document.getElementById("engagement"),
 
     audienceNumber: document.getElementById("audienceNumber"),
-
     gained: document.getElementById("gained"),
-
     lost: document.getElementById("lost"),
-
     netGrowth: document.getElementById("netGrowth"),
 
     viewsChart: document.getElementById("viewsChart"),
-
     videosList: document.getElementById("videosList"),
-
     videoCount: document.getElementById("videoCount"),
 
     dateRange: document.getElementById("dateRange"),
@@ -96,7 +85,6 @@ function formatCompact(value) {
     }
 
     if (number >= 1000000) {
-
         return (
             (number / 1000000)
                 .toFixed(1)
@@ -105,9 +93,7 @@ function formatCompact(value) {
         );
     }
 
-
     if (number >= 1000) {
-
         return (
             (number / 1000)
                 .toFixed(1)
@@ -115,7 +101,6 @@ function formatCompact(value) {
             "K"
         );
     }
-
 
     return formatNumber(number);
 }
@@ -141,18 +126,16 @@ function setConnectionStatus(
     text
 ) {
 
-    if (!elements.updateText) {
-        return;
+    if (elements.updateText) {
+
+        elements.updateText.textContent =
+            text ||
+            (
+                connected
+                    ? "Connected"
+                    : "Not connected"
+            );
     }
-
-
-    elements.updateText.textContent =
-        text ||
-        (
-            connected
-                ? "Connected"
-                : "Not connected"
-        );
 
 
     const connection =
@@ -185,12 +168,27 @@ function setConnectionStatus(
                     ? "YouTube connected"
                     : "Ready to connect";
         }
+
+
+        const dot =
+            sidebarConnection.querySelector(
+                ".status-dot"
+            );
+
+
+        if (dot) {
+
+            dot.style.background =
+                connected
+                    ? "#00ff88"
+                    : "#555";
+        }
     }
 }
 
 
 /* =========================
-   LOGIN
+   GOOGLE LOGIN
 ========================= */
 
 if (elements.googleLogin) {
@@ -199,10 +197,10 @@ if (elements.googleLogin) {
         "click",
         () => {
 
-            /*
-                IMPORTANT:
-                Backend route is /api/auth/login
-            */
+            console.log(
+                "Opening Google OAuth..."
+            );
+
 
             window.location.href =
                 `${API_BASE}/api/auth/login`;
@@ -218,9 +216,9 @@ if (elements.googleLogin) {
 
 async function loadDashboard() {
 
-    if (!API_BASE) {
-        return;
-    }
+    console.log(
+        "Loading AR8 dashboard..."
+    );
 
 
     setConnectionStatus(
@@ -242,14 +240,22 @@ async function loadDashboard() {
                     headers: {
                         "Accept":
                             "application/json"
-                    }
+                    },
+
+                    cache: "no-store"
                 }
             );
 
 
-        /*
-            Not logged in
-        */
+        console.log(
+            "Dashboard status:",
+            response.status
+        );
+
+
+        /* =========================
+           NOT AUTHENTICATED
+        ========================= */
 
         if (response.status === 401) {
 
@@ -258,16 +264,31 @@ async function loadDashboard() {
                 "Not connected"
             );
 
+
             if (elements.loginCard) {
+
                 elements.loginCard.style.display =
                     "flex";
             }
+
 
             return;
         }
 
 
+        /* =========================
+           OTHER ERROR
+        ========================= */
+
         if (!response.ok) {
+
+            const errorText =
+                await response.text();
+
+            console.error(
+                "Dashboard error:",
+                errorText
+            );
 
             throw new Error(
                 `Dashboard request failed: ${response.status}`
@@ -275,17 +296,30 @@ async function loadDashboard() {
         }
 
 
+        /* =========================
+           JSON
+        ========================= */
+
         const data =
             await response.json();
 
 
+        console.log(
+            "AR8 dashboard data:",
+            data
+        );
+
+
+        /* =========================
+           RENDER
+        ========================= */
+
         renderDashboard(data);
 
 
-        /*
-            Hide login card after
-            successful connection
-        */
+        /* =========================
+           SUCCESS
+        ========================= */
 
         if (elements.loginCard) {
 
@@ -294,13 +328,17 @@ async function loadDashboard() {
         }
 
 
-        setConnectionStatus(
-            true,
+        const updatedText =
             data.updatedAt
                 ? `Updated ${new Date(
                     data.updatedAt
                   ).toLocaleTimeString()}`
-                : "Connected"
+                : "Connected";
+
+
+        setConnectionStatus(
+            true,
+            updatedText
         );
 
 
@@ -329,14 +367,13 @@ function renderDashboard(data) {
     const channel =
         data?.channel || {};
 
-
     const analytics =
         data?.analytics || {};
 
 
-    /*
-        Subscribers
-    */
+    /* =========================
+       CHANNEL
+    ========================= */
 
     if (elements.subscribers) {
 
@@ -347,10 +384,6 @@ function renderDashboard(data) {
     }
 
 
-    /*
-        Views
-    */
-
     if (elements.views) {
 
         elements.views.textContent =
@@ -360,9 +393,9 @@ function renderDashboard(data) {
     }
 
 
-    /*
-        Watch time
-    */
+    /* =========================
+       WATCH TIME
+    ========================= */
 
     if (elements.watchTime) {
 
@@ -376,24 +409,25 @@ function renderDashboard(data) {
     }
 
 
-    /*
-        Engagement
-    */
+    /* =========================
+       ENGAGEMENT
+    ========================= */
 
     if (elements.engagement) {
 
         elements.engagement.textContent =
-            analytics.engagement !== undefined
-                ? formatCompact(
+            analytics.engagement !== undefined &&
+            analytics.engagement !== null
+                ? formatNumber(
                     analytics.engagement
                   )
                 : "—";
     }
 
 
-    /*
-        Audience
-    */
+    /* =========================
+       AUDIENCE
+    ========================= */
 
     if (elements.audienceNumber) {
 
@@ -404,9 +438,9 @@ function renderDashboard(data) {
     }
 
 
-    /*
-        Gained / Lost
-    */
+    /* =========================
+       GROWTH
+    ========================= */
 
     const gained =
         Number(
@@ -443,9 +477,9 @@ function renderDashboard(data) {
     }
 
 
-    /*
-        Growth text
-    */
+    /* =========================
+       SMALL TEXT
+    ========================= */
 
     if (elements.subscriberGrowth) {
 
@@ -461,18 +495,18 @@ function renderDashboard(data) {
     }
 
 
-    /*
-        Chart
-    */
+    /* =========================
+       CHART
+    ========================= */
 
     renderChart(
         analytics.dailyViews || []
     );
 
 
-    /*
-        Videos
-    */
+    /* =========================
+       VIDEOS
+    ========================= */
 
     renderVideos(
         data?.videos || []
@@ -494,7 +528,10 @@ function renderChart(rows) {
     elements.viewsChart.innerHTML = "";
 
 
-    if (!Array.isArray(rows) || !rows.length) {
+    if (
+        !Array.isArray(rows) ||
+        rows.length === 0
+    ) {
 
         elements.viewsChart.innerHTML = `
             <div class="chart-empty">
@@ -538,7 +575,9 @@ function renderChart(rows) {
 
 
         const bar =
-            document.createElement("div");
+            document.createElement(
+                "div"
+            );
 
 
         bar.style.height =
@@ -599,7 +638,10 @@ function renderVideos(videos) {
     }
 
 
-    if (!Array.isArray(videos) || !videos.length) {
+    if (
+        !Array.isArray(videos) ||
+        videos.length === 0
+    ) {
 
         elements.videosList.innerHTML = `
             <div class="empty-state">
@@ -620,7 +662,9 @@ function renderVideos(videos) {
     videos.forEach(video => {
 
         const row =
-            document.createElement("div");
+            document.createElement(
+                "div"
+            );
 
 
         row.className =
@@ -661,6 +705,7 @@ function renderVideos(videos) {
                     video.views
                 )} views
             </div>
+
         `;
 
 
@@ -718,13 +763,6 @@ if (elements.dateRange) {
         "change",
         () => {
 
-            /*
-                The selected value is ready
-                for the backend when the
-                analytics endpoint supports
-                a days parameter.
-            */
-
             loadDashboard();
 
         }
@@ -777,9 +815,7 @@ function activateNav(button) {
 }
 
 
-function scrollToSection(
-    element
-) {
+function scrollToSection(element) {
 
     if (!element) {
         return;
@@ -803,9 +839,7 @@ navItems.forEach(
                 activateNav(button);
 
 
-                /*
-                    Dashboard
-                */
+                /* Dashboard */
 
                 if (index === 0) {
 
@@ -818,9 +852,7 @@ navItems.forEach(
                 }
 
 
-                /*
-                    Analytics
-                */
+                /* Analytics */
 
                 if (index === 1) {
 
@@ -832,9 +864,7 @@ navItems.forEach(
                 }
 
 
-                /*
-                    Videos
-                */
+                /* Videos */
 
                 if (index === 2) {
 
@@ -846,9 +876,7 @@ navItems.forEach(
                 }
 
 
-                /*
-                    Audience
-                */
+                /* Audience */
 
                 if (index === 3) {
 
@@ -860,9 +888,7 @@ navItems.forEach(
                 }
 
 
-                /*
-                    Settings
-                */
+                /* Settings */
 
                 if (index === 4) {
 
@@ -913,6 +939,7 @@ function showSettings() {
                     <button
                         class="ar8-settings-close"
                         id="ar8SettingsClose"
+                        type="button"
                     >
                         ×
                     </button>
@@ -984,10 +1011,6 @@ function showSettings() {
         );
 
 
-        /*
-            Close button
-        */
-
         document
             .getElementById(
                 "ar8SettingsClose"
@@ -997,10 +1020,6 @@ function showSettings() {
                 closeSettings
             );
 
-
-        /*
-            Click outside
-        */
 
         document
             .getElementById(
@@ -1023,10 +1042,6 @@ function showSettings() {
             );
 
 
-        /*
-            Logout
-        */
-
         document
             .getElementById(
                 "ar8LogoutButton"
@@ -1044,9 +1059,12 @@ function showSettings() {
 
 
     checkApiStatus();
-
 }
 
+
+/* =========================
+   CLOSE SETTINGS
+========================= */
 
 function closeSettings() {
 
@@ -1068,6 +1086,18 @@ function closeSettings() {
    API STATUS
 ========================= */
 
+/*
+    IMPORTANT:
+
+    Do NOT use /api/health here.
+
+    Your Railway root endpoint is confirmed working:
+
+    https://ar8-backend-production.up.railway.app/
+
+    Therefore we check the ROOT endpoint.
+*/
+
 async function checkApiStatus() {
 
     const status =
@@ -1081,11 +1111,19 @@ async function checkApiStatus() {
     }
 
 
+    status.textContent =
+        "Checking...";
+
+
     try {
 
         const response =
             await fetch(
-                `${API_BASE}/api/health`
+                `${API_BASE}/`,
+                {
+                    method: "GET",
+                    cache: "no-store"
+                }
             );
 
 
@@ -1094,17 +1132,32 @@ async function checkApiStatus() {
             status.textContent =
                 "Online";
 
+            status.style.color =
+                "#00ff88";
+
         } else {
 
             status.textContent =
                 "Offline";
+
+            status.style.color =
+                "#ff4444";
         }
 
 
-    } catch {
+    } catch (error) {
+
+        console.error(
+            "API status error:",
+            error
+        );
+
 
         status.textContent =
             "Offline";
+
+        status.style.color =
+            "#ff4444";
     }
 }
 
@@ -1117,13 +1170,21 @@ async function logout() {
 
     try {
 
-        await fetch(
-            `${API_BASE}/api/auth/logout`,
-            {
-                method: "POST",
-                credentials: "include"
-            }
+        const response =
+            await fetch(
+                `${API_BASE}/api/auth/logout`,
+                {
+                    method: "POST",
+                    credentials: "include"
+                }
+            );
+
+
+        console.log(
+            "Logout status:",
+            response.status
         );
+
 
     } catch (error) {
 
@@ -1135,9 +1196,7 @@ async function logout() {
     }
 
 
-    /*
-        Return UI to disconnected state
-    */
+    /* Show login */
 
     if (elements.loginCard) {
 
@@ -1152,9 +1211,7 @@ async function logout() {
     );
 
 
-    /*
-        Reset dashboard values
-    */
+    /* Reset stats */
 
     [
         elements.subscribers,
@@ -1176,6 +1233,8 @@ async function logout() {
     });
 
 
+    /* Reset videos */
+
     if (elements.videosList) {
 
         elements.videosList.innerHTML = `
@@ -1195,6 +1254,27 @@ async function logout() {
     }
 
 
+    if (elements.videoCount) {
+
+        elements.videoCount.textContent =
+            "—";
+    }
+
+
+    /* Reset chart */
+
+    if (elements.viewsChart) {
+
+        elements.viewsChart.innerHTML = `
+
+            <div class="chart-empty">
+                Connect YouTube to load analytics.
+            </div>
+
+        `;
+    }
+
+
     closeSettings();
 }
 
@@ -1202,5 +1282,22 @@ async function logout() {
 /* =========================
    START
 ========================= */
+
+console.log(
+    "AR8 Studio frontend loaded."
+);
+
+console.log(
+    "Backend:",
+    API_BASE
+);
+
+
+/*
+    Load dashboard automatically.
+
+    If OAuth session exists,
+    dashboard data will appear.
+*/
 
 loadDashboard();
