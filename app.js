@@ -1,10 +1,4 @@
-/*
-    AR8 STUDIO
-    YouTube Analytics Frontend
 
-    Backend:
-    Railway
-*/
 
 const API_BASE =
     "https://ar8-backend-production.up.railway.app";
@@ -1293,11 +1287,5 @@ console.log(
 );
 
 
-/*
-    Load dashboard automatically.
-
-    If OAuth session exists,
-    dashboard data will appear.
-*/
 
 loadDashboard();
