@@ -1,17 +1,34 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <meta
+        name="theme-color"
+        content="#050505"
+    >
 
     <title>AR8 Studio — Analytics</title>
 
-    <link rel="stylesheet" href="style.css">
+    <link
+        rel="stylesheet"
+        href="style.css"
+    >
 </head>
+
 
 <body>
 
-    <!-- Background -->
+    <!-- =========================
+         BACKGROUND
+    ========================== -->
+
     <div class="bg-glow glow-one"></div>
     <div class="bg-glow glow-two"></div>
 
@@ -22,65 +39,78 @@
 
     <aside class="sidebar">
 
+        <!-- BRAND -->
+
         <div class="brand">
 
             <div class="logo-wrap">
+
                 <img
                     src="https://yt3.googleusercontent.com/GSHYuugy4mRaVu5SSUrZEMteXiQHvOKYN9in-1Mk8sfNp1Kd9fjz5E3NGp-vFXL0YnRE_qeP_Q=s160-c-k-c0x00ffffff-no-rj"
                     alt="AR8 Logo"
                 >
+
             </div>
 
+
             <div>
-                <h2>AR<span>8</span></h2>
-                <p>STUDIO</p>
+
+                <h2>
+                    AR<span>8</span>
+                </h2>
+
+                <p>
+                    STUDIO
+                </p>
+
             </div>
 
         </div>
 
 
+        <!-- NAVIGATION -->
+
         <nav class="navigation">
 
             <button
-                class="nav-item active"
                 type="button"
-                data-target="dashboardSection"
+                class="nav-item active"
             >
                 <span>⌂</span>
                 Dashboard
             </button>
 
+
             <button
-                class="nav-item"
                 type="button"
-                data-target="analyticsSection"
+                class="nav-item"
             >
                 <span>◉</span>
                 Analytics
             </button>
 
+
             <button
-                class="nav-item"
                 type="button"
-                data-target="videosSection"
+                class="nav-item"
             >
                 <span>▶</span>
                 Videos
             </button>
 
+
             <button
-                class="nav-item"
                 type="button"
-                data-target="audienceSection"
+                class="nav-item"
             >
                 <span>♙</span>
                 Audience
             </button>
 
+
             <button
-                class="nav-item"
                 type="button"
-                data-target="settingsSection"
+                class="nav-item"
             >
                 <span>⚙</span>
                 Settings
@@ -89,17 +119,25 @@
         </nav>
 
 
+        <!-- CONNECTION -->
+
         <div class="sidebar-bottom">
 
             <div class="connection">
 
                 <span class="status-dot"></span>
 
+
                 <div>
-                    <strong>System</strong>
-                    <small id="connectionStatus">
+
+                    <strong>
+                        System
+                    </strong>
+
+                    <small>
                         Ready to connect
                     </small>
+
                 </div>
 
             </div>
@@ -117,9 +155,11 @@
     <main class="main">
 
 
-        <!-- TOPBAR -->
+        <!-- =========================
+             TOPBAR
+        ========================== -->
 
-        <header class="topbar" id="dashboardSection">
+        <header class="topbar">
 
             <div>
 
@@ -127,9 +167,11 @@
                     AR8 CREATOR DASHBOARD
                 </div>
 
+
                 <h1>
                     Analytics Overview
                 </h1>
+
 
                 <p>
                     Your YouTube channel performance in one place.
@@ -145,17 +187,18 @@
                     <span class="status-dot"></span>
 
                     <span id="updateText">
-                        Not connected
+                        Connecting...
                     </span>
 
                 </div>
 
 
                 <button
+                    type="button"
                     id="refreshBtn"
                     class="icon-button"
-                    type="button"
                     title="Refresh dashboard"
+                    aria-label="Refresh dashboard"
                 >
                     ↻
                 </button>
@@ -167,7 +210,7 @@
 
 
         <!-- =========================
-             LOGIN
+             YOUTUBE LOGIN
         ========================== -->
 
         <section
@@ -186,25 +229,24 @@
                     YOUTUBE CONNECTION
                 </span>
 
+
                 <h2>
                     Connect your AR8 channel
                 </h2>
 
+
                 <p>
-                    Sign in with Google to securely load your
-                    authorized YouTube analytics.
+                    Sign in with Google to securely load
+                    your authorized YouTube analytics.
                 </p>
 
             </div>
 
 
-            <!-- IMPORTANT:
-                 Correct Railway OAuth route -->
             <button
+                type="button"
                 id="googleLogin"
                 class="google-button"
-                type="button"
-                onclick="connectYouTube()"
             >
 
                 <span class="google-icon">
@@ -225,6 +267,9 @@
 
         <section class="stats-grid">
 
+
+            <!-- SUBSCRIBERS -->
+
             <article class="stat-card">
 
                 <div class="stat-heading">
@@ -239,9 +284,11 @@
 
                 </div>
 
+
                 <strong id="subscribers">
                     —
                 </strong>
+
 
                 <small id="subscriberGrowth">
                     Waiting for data
@@ -249,6 +296,9 @@
 
             </article>
 
+
+
+            <!-- VIEWS -->
 
             <article class="stat-card">
 
@@ -264,9 +314,11 @@
 
                 </div>
 
+
                 <strong id="views">
                     —
                 </strong>
+
 
                 <small id="viewGrowth">
                     Waiting for data
@@ -274,6 +326,9 @@
 
             </article>
 
+
+
+            <!-- WATCH TIME -->
 
             <article class="stat-card">
 
@@ -289,9 +344,11 @@
 
                 </div>
 
+
                 <strong id="watchTime">
                     —
                 </strong>
+
 
                 <small>
                     Estimated minutes watched
@@ -299,6 +356,9 @@
 
             </article>
 
+
+
+            <!-- ENGAGEMENT -->
 
             <article class="stat-card">
 
@@ -314,9 +374,11 @@
 
                 </div>
 
+
                 <strong id="engagement">
                     —
                 </strong>
+
 
                 <small>
                     Likes + comments
@@ -332,10 +394,10 @@
              ANALYTICS
         ========================== -->
 
-        <section
-            class="dashboard-grid"
-            id="analyticsSection"
-        >
+        <section class="dashboard-grid">
+
+
+            <!-- VIEWS -->
 
             <article class="panel analytics-panel">
 
@@ -347,6 +409,7 @@
                             PERFORMANCE
                         </span>
 
+
                         <h2>
                             Views Overview
                         </h2>
@@ -354,7 +417,10 @@
                     </div>
 
 
-                    <select id="dateRange">
+                    <select
+                        id="dateRange"
+                        aria-label="Analytics date range"
+                    >
 
                         <option value="7">
                             Last 7 days
@@ -390,10 +456,7 @@
 
             <!-- AUDIENCE -->
 
-            <article
-                class="panel audience-panel"
-                id="audienceSection"
-            >
+            <article class="panel audience-panel">
 
                 <div class="panel-header">
 
@@ -402,6 +465,7 @@
                         <span class="section-label">
                             AUDIENCE
                         </span>
+
 
                         <h2>
                             Channel Growth
@@ -418,6 +482,7 @@
                         —
                     </strong>
 
+
                     <span>
                         subscribers
                     </span>
@@ -430,6 +495,7 @@
                     <span>
                         Gained
                     </span>
+
 
                     <strong id="gained">
                         —
@@ -444,6 +510,7 @@
                         Lost
                     </span>
 
+
                     <strong id="lost">
                         —
                     </strong>
@@ -456,6 +523,7 @@
                     <span>
                         Net growth
                     </span>
+
 
                     <strong id="netGrowth">
                         —
@@ -475,7 +543,6 @@
 
         <section
             class="panel videos-panel"
-            id="videosSection"
         >
 
             <div class="panel-header">
@@ -486,11 +553,13 @@
                         CONTENT
                     </span>
 
+
                     <h2>
                         Top Performing Videos
                     </h2>
 
                 </div>
+
 
                 <span
                     id="videoCount"
@@ -513,6 +582,7 @@
                         ▶
                     </div>
 
+
                     <p>
                         Connect your YouTube channel
                         to load your videos.
@@ -527,47 +597,17 @@
 
 
         <!-- =========================
-             SETTINGS
-        ========================== -->
-
-        <section
-            class="panel"
-            id="settingsSection"
-            style="display:none; margin-bottom:15px;"
-        >
-
-            <div class="panel-header">
-
-                <div>
-
-                    <span class="section-label">
-                        SETTINGS
-                    </span>
-
-                    <h2>
-                        AR8 Studio Settings
-                    </h2>
-
-                </div>
-
-            </div>
-
-            <p style="color:#777; font-size:11px;">
-                Your AR8 Studio connection and dashboard
-                settings will appear here.
-            </p>
-
-        </section>
-
-
-
-        <!-- =========================
              FOOTER
         ========================== -->
 
         <footer>
 
-            <span>AR8</span> Studio
+            <span>
+                AR8
+            </span>
+
+            Studio
+
 
             <small>
                 • YouTube Analytics Dashboard
@@ -575,212 +615,19 @@
 
         </footer>
 
-
     </main>
 
 
 
     <!-- =========================
-         BASIC BUTTON SYSTEM
+         JAVASCRIPT
     ========================== -->
 
-    <script>
-
-        /*
-         * Railway backend
-         */
-        const AR8_BACKEND =
-            "https://ar8-backend-production.up.railway.app";
-
-
-        /*
-         * GOOGLE LOGIN
-         *
-         * IMPORTANT:
-         * Backend route is /api/auth/login
-         */
-        function connectYouTube() {
-
-            window.location.href =
-                AR8_BACKEND + "/api/auth/login";
-
-        }
-
-
-        /*
-         * SIDEBAR NAVIGATION
-         */
-
-        const navButtons =
-            document.querySelectorAll(
-                ".nav-item"
-            );
-
-
-        navButtons.forEach(button => {
-
-            button.addEventListener(
-                "click",
-                function () {
-
-                    navButtons.forEach(item => {
-
-                        item.classList.remove(
-                            "active"
-                        );
-
-                    });
-
-
-                    this.classList.add(
-                        "active"
-                    );
-
-
-                    const targetId =
-                        this.dataset.target;
-
-
-                    /*
-                     * Settings is a special
-                     * hidden section.
-                     */
-
-                    if (
-                        targetId ===
-                        "settingsSection"
-                    ) {
-
-                        document
-                            .getElementById(
-                                "settingsSection"
-                            )
-                            .style.display =
-                            "block";
-
-
-                        window.scrollTo({
-                            top: document
-                                .getElementById(
-                                    "settingsSection"
-                                )
-                                .offsetTop - 30,
-
-                            behavior: "smooth"
-                        });
-
-                        return;
-
-                    }
-
-
-                    /*
-                     * Hide settings
-                     * when going elsewhere.
-                     */
-
-                    document
-                        .getElementById(
-                            "settingsSection"
-                        )
-                        .style.display =
-                        "none";
-
-
-                    const target =
-                        document.getElementById(
-                            targetId
-                        );
-
-
-                    if (target) {
-
-                        target.scrollIntoView({
-                            behavior: "smooth",
-                            block: "start"
-                        });
-
-                    }
-
-                }
-            );
-
-        });
-
-
-        /*
-         * REFRESH BUTTON
-         *
-         * app.js already contains
-         * loadDashboard().
-         */
-
-        const refreshButton =
-            document.getElementById(
-                "refreshBtn"
-            );
-
-
-        if (refreshButton) {
-
-            refreshButton.addEventListener(
-                "click",
-                function () {
-
-                    if (
-                        typeof loadDashboard ===
-                        "function"
-                    ) {
-
-                        loadDashboard();
-
-                    } else {
-
-                        window.location.reload();
-
-                    }
-
-                }
-            );
-
-        }
-
-
-        /*
-         * DATE RANGE
-         */
-
-        const dateRange =
-            document.getElementById(
-                "dateRange"
-            );
-
-
-        if (dateRange) {
-
-            dateRange.addEventListener(
-                "change",
-                function () {
-
-                    if (
-                        typeof loadDashboard ===
-                        "function"
-                    ) {
-
-                        loadDashboard();
-
-                    }
-
-                }
-            );
-
-        }
-
-    </script>
-
-
-    <!-- YOUR EXISTING APP JS -->
-    <script src="app.js"></script>
+    <script
+        src="app.js"
+        defer
+    ></script>
 
 </body>
+
 </html>
